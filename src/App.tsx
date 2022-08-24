@@ -17,10 +17,11 @@ function Stat({
   return (
     <div
       style={{
-        border:
-          runningState?.currentStat === statId
-            ? "1px solid red"
-            : "1px solid black",
+        border: `1px solid black`,
+        padding: "5px",
+        borderRadius: "5px",
+        backgroundColor:
+          runningState?.currentStat === statId ? "#5555ff" : "#ccccff",
       }}
     >
       {(() => {
@@ -137,25 +138,34 @@ function StatList({
   return (
     <div
       style={{
-        padding: "1em",
         border: "1px solid black",
+        padding: "5px",
+        borderRadius: "5px",
+        backgroundColor: "#ccffcc",
       }}
     >
       {statIds.map((statId, i) => (
-        <div key={statId}>
-          <button
-            onClick={() => {
-              setProgram((program) => ({
-                ...program,
-                statLists: {
-                  ...program.statLists,
-                  [statListId]: statIds.filter((_, j) => j !== i),
-                },
-              }));
-            }}
-          >
-            x
-          </button>
+        <div
+          key={statId}
+          style={{
+            display: "flex",
+          }}
+        >
+          <div>
+            <button
+              onClick={() => {
+                setProgram((program) => ({
+                  ...program,
+                  statLists: {
+                    ...program.statLists,
+                    [statListId]: statIds.filter((_, j) => j !== i),
+                  },
+                }));
+              }}
+            >
+              x
+            </button>
+          </div>
           <Stat
             program={program}
             runningState={runningState}
@@ -278,7 +288,7 @@ function StatList({
           }
         }}
       >
-        select stat
+        +
       </button>
     </div>
   );
@@ -297,7 +307,15 @@ function Expr({
   const [type, setType] = useState<Engine.Expr["type"]>("const");
 
   return (
-    <span>
+    <div
+      style={{
+        padding: "5px",
+        border: "1px solid black",
+        borderRadius: "5px",
+        display: "inline-block",
+        backgroundColor: "#ffcccc",
+      }}
+    >
       {expr === undefined ? (
         <>
           <select
@@ -870,7 +888,7 @@ function Expr({
           }
         }
       })()}
-    </span>
+    </div>
   );
 }
 
