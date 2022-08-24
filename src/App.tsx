@@ -66,34 +66,16 @@ function Stat({
                   <div>then</div>
                   <StatList
                     program={program}
-                    statIds={stat.body1}
+                    statListId={stat.body1}
                     setProgram={setProgram}
                     runningState={runningState}
-                    setStatIds={(updater) =>
-                      setProgram((program) => ({
-                        ...program,
-                        stats: {
-                          ...program.stats,
-                          [statId]: { ...stat, body1: updater(stat.body1) },
-                        },
-                      }))
-                    }
                   />
                   <div>else</div>
                   <StatList
                     program={program}
-                    statIds={stat.body2}
+                    statListId={stat.body2}
                     setProgram={setProgram}
                     runningState={runningState}
-                    setStatIds={(updater) =>
-                      setProgram((program) => ({
-                        ...program,
-                        stats: {
-                          ...program.stats,
-                          [statId]: { ...stat, body2: updater(stat.body2) },
-                        },
-                      }))
-                    }
                   />
                 </div>
               );
@@ -109,18 +91,9 @@ function Stat({
                   />
                   <StatList
                     program={program}
-                    statIds={stat.body}
+                    statListId={stat.body}
                     setProgram={setProgram}
                     runningState={runningState}
-                    setStatIds={(updater) =>
-                      setProgram((program) => ({
-                        ...program,
-                        stats: {
-                          ...program.stats,
-                          [statId]: { ...stat, body: updater(stat.body) },
-                        },
-                      }))
-                    }
                   />
                 </div>
               );
@@ -150,17 +123,16 @@ function Stat({
 function StatList({
   program,
   runningState,
-  statIds,
+  statListId,
   setProgram,
-  setStatIds,
 }: {
   program: Engine.Program;
   runningState: Engine.RunningState | null;
-  statIds: Engine.StatId[];
+  statListId: Engine.StatListId;
   setProgram: (updater: (value: Engine.Program) => Engine.Program) => void;
-  setStatIds: (updater: (value: Engine.StatId[]) => Engine.StatId[]) => void;
 }): JSX.Element {
   const [type, setType] = useState<Engine.Stat["type"]>("assign");
+  const statIds = program.statLists[statListId] ?? [];
 
   return (
     <div
@@ -173,7 +145,13 @@ function StatList({
         <div key={statId}>
           <button
             onClick={() => {
-              setStatIds((statIds) => statIds.filter((_, j) => j !== i));
+              setProgram((program) => ({
+                ...program,
+                statLists: {
+                  ...program.statLists,
+                  [statListId]: statIds.filter((_, j) => j !== i),
+                },
+              }));
             }}
           >
             x
@@ -210,7 +188,6 @@ function StatList({
         onClick={() => {
           switch (type) {
             case "assign": {
-              setStatIds((statIds) => [...statIds, String(program.statCount)]);
               setProgram((program) => ({
                 ...program,
                 stats: {
@@ -221,13 +198,16 @@ function StatList({
                     value: String(program.exprCount),
                   },
                 },
+                statLists: {
+                  ...program.statLists,
+                  [statListId]: [...statIds, String(program.statCount)],
+                },
                 statCount: program.statCount + 1,
                 exprCount: program.exprCount + 1,
               }));
               break;
             }
             case "if": {
-              setStatIds((statIds) => [...statIds, String(program.statCount)]);
               setProgram((program) => ({
                 ...program,
                 stats: {
@@ -235,17 +215,23 @@ function StatList({
                   [String(program.statCount)]: {
                     type: "if",
                     cond: String(program.exprCount),
-                    body1: [],
-                    body2: [],
+                    body1: String(program.statListCount),
+                    body2: String(program.statListCount + 1),
                   },
+                },
+                statLists: {
+                  ...program.statLists,
+                  [statListId]: [...statIds, String(program.statCount)],
+                  [String(program.statListCount)]: [],
+                  [String(program.statListCount + 1)]: [],
                 },
                 statCount: program.statCount + 1,
                 exprCount: program.exprCount + 1,
+                statListCount: program.statListCount + 2,
               }));
               break;
             }
             case "while": {
-              setStatIds((statIds) => [...statIds, String(program.statCount)]);
               setProgram((program) => ({
                 ...program,
                 stats: {
@@ -253,16 +239,21 @@ function StatList({
                   [String(program.statCount)]: {
                     type: "while",
                     cond: String(program.exprCount),
-                    body: [],
+                    body: String(program.statListCount),
                   },
+                },
+                statLists: {
+                  ...program.statLists,
+                  [statListId]: [...statIds, String(program.statCount)],
+                  [String(program.statListCount)]: [],
                 },
                 statCount: program.statCount + 1,
                 exprCount: program.exprCount + 1,
+                statListCount: program.statListCount + 1,
               }));
               break;
             }
             case "sleep": {
-              setStatIds((statIds) => [...statIds, String(program.statCount)]);
               setProgram((program) => ({
                 ...program,
                 stats: {
@@ -271,6 +262,10 @@ function StatList({
                     type: "sleep",
                     value: String(program.exprCount),
                   },
+                },
+                statLists: {
+                  ...program.statLists,
+                  [statListId]: [...statIds, String(program.statCount)],
                 },
                 statCount: program.statCount + 1,
                 exprCount: program.exprCount + 1,
@@ -879,7 +874,7 @@ function Expr({
   );
 }
 
-const key = "kgtkr.net-graphicalang-program-v1";
+const key = "kgtkr.net-graphicalang-program-1661363024522";
 
 function App() {
   const [program, setProgram] = useState<Engine.Program>(() => {
@@ -964,13 +959,7 @@ function App() {
         program={program}
         setProgram={setProgram}
         runningState={runningState}
-        setStatIds={(updater) =>
-          setProgram((program) => ({
-            ...program,
-            entry: updater(program.entry),
-          }))
-        }
-        statIds={program.entry}
+        statListId={"entry"}
       ></StatList>
     </div>
   );

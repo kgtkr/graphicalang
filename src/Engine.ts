@@ -1,13 +1,15 @@
 export interface Program {
   stats: Partial<Record<StatId, Stat>>;
   exprs: Partial<Record<string, Expr>>;
-  entry: StatId[];
+  statLists: Partial<Record<string, StatId[]>>;
   statCount: number;
   exprCount: number;
+  statListCount: number;
 }
 
 export type ExprId = string;
 export type StatId = string;
+export type StatListId = string;
 
 export type Expr =
   | {
@@ -97,13 +99,13 @@ export type Stat =
   | {
       type: "while";
       cond: ExprId;
-      body: StatId[];
+      body: StatListId;
     }
   | {
       type: "if";
       cond: ExprId;
-      body1: StatId[];
-      body2: StatId[];
+      body1: StatListId;
+      body2: StatListId;
     }
   | {
       type: "sleep";
@@ -114,9 +116,12 @@ export function emptyProgram(): Program {
   return {
     stats: {},
     exprs: {},
-    entry: [],
+    statLists: {
+      entry: [],
+    },
     statCount: 0,
     exprCount: 0,
+    statListCount: 0,
   };
 }
 
@@ -140,7 +145,7 @@ export function* run(program: Program): Generator<RunningState, void, unknown> {
     angle: 0,
   };
 
-  for (const statId of program.entry) {
+  for (const statId of program.statLists["entry"] ?? []) {
     yield* runStat(program, { statId, variables });
   }
 }
@@ -174,42 +179,27 @@ function* runStat(
     }
     case "while": {
       while (evalExpr(program, { variables, exprId: stat.cond }) !== 0) {
-        for (const statId of stat.body) {
-          yield* runStat(program, { statId, variables });
-        }
-        if (stat.body.length === 0) {
-          yield {
-            currentStat: statId,
-            variables: listVariables(variables),
-            specialVariables: specialVariables(variables),
-          };
-        }
+        yield* runStatList(program, {
+          currentStatId: statId,
+          statListId: stat.body,
+          variables,
+        });
       }
       break;
     }
     case "if": {
       if (evalExpr(program, { variables, exprId: stat.cond }) !== 0) {
-        for (const statId of stat.body1) {
-          yield* runStat(program, { statId, variables });
-        }
-        if (stat.body1.length === 0) {
-          yield {
-            currentStat: statId,
-            variables: listVariables(variables),
-            specialVariables: specialVariables(variables),
-          };
-        }
+        yield* runStatList(program, {
+          currentStatId: statId,
+          statListId: stat.body1,
+          variables,
+        });
       } else {
-        for (const statId of stat.body2) {
-          yield* runStat(program, { statId, variables });
-        }
-        if (stat.body2.length === 0) {
-          yield {
-            currentStat: statId,
-            variables: listVariables(variables),
-            specialVariables: specialVariables(variables),
-          };
-        }
+        yield* runStatList(program, {
+          currentStatId: statId,
+          statListId: stat.body2,
+          variables,
+        });
       }
       break;
     }
@@ -226,6 +216,31 @@ function* runStat(
     default: {
       const _: never = stat;
     }
+  }
+}
+
+function* runStatList(
+  program: Program,
+  {
+    currentStatId,
+    statListId,
+    variables,
+  }: {
+    currentStatId: StatId;
+    statListId: StatListId;
+    variables: Partial<Record<string, number>>;
+  }
+): Generator<RunningState, void, unknown> {
+  const statList = program.statLists[statListId] ?? [];
+  for (const statId of statList) {
+    yield* runStat(program, { statId, variables });
+  }
+  if (statList.length === 0) {
+    yield {
+      currentStat: currentStatId,
+      variables: listVariables(variables),
+      specialVariables: specialVariables(variables),
+    };
   }
 }
 
@@ -336,6 +351,7 @@ export function evalExpr(
     }
     default: {
       const _: never = expr;
+      return _;
     }
   }
 }
