@@ -12,7 +12,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
-        run: npm run build
+        run: VITE_BASE="/graphicalang/" npm run build
       - uses: actions/upload-pages-artifact@v1
         with:
           path: dist

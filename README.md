@@ -1,5 +1,6 @@
 # graphicalang
 Toy graphical (visual) language.
+https://kgtkr.github.io/graphicalang/
 
 ![sample](sample.png)
 

@@ -11,4 +11,5 @@ export default defineConfig({
   optimizeDeps: {
     disabled: false,
   },
+  base: process.env["VITE_BASE"] || "/",
 });
