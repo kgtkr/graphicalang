@@ -123,6 +123,7 @@ export function emptyProgram(): Program {
 export interface SpecialVariables {
   x: number;
   y: number;
+  angle: number;
 }
 
 export interface RunningState {
@@ -136,6 +137,7 @@ export function* run(program: Program): Generator<RunningState, void, unknown> {
   const variables: Partial<Record<string, number>> = {
     x: 0,
     y: 0,
+    angle: 0,
   };
 
   for (const statId of program.entry) {
@@ -350,5 +352,6 @@ function specialVariables(
   return {
     x: variables["x"] ?? 0,
     y: variables["y"] ?? 0,
+    angle: variables["angle"] ?? 0,
   };
 }

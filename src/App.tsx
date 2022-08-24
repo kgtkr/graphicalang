@@ -901,7 +901,9 @@ function App() {
           style={{
             transform: `translateX(${
               runningState?.specialVariables.x ?? 0
-            }px) translateY(${runningState?.specialVariables.y ?? 0}px)`,
+            }px) translateY(${
+              runningState?.specialVariables.y ?? 0
+            }px) rotate(${runningState?.specialVariables.angle ?? 0}deg)`,
           }}
         />
       </div>
