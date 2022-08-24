@@ -104,6 +104,10 @@ export type Stat =
       cond: ExprId;
       body1: StatId[];
       body2: StatId[];
+    }
+  | {
+      type: "sleep";
+      value: ExprId;
     };
 
 export function emptyProgram(): Program {
@@ -125,6 +129,7 @@ export interface RunningState {
   currentStat: StatId;
   variables: [string, number][];
   specialVariables: SpecialVariables;
+  duration?: number;
 }
 
 export function* run(program: Program): Generator<RunningState, void, unknown> {
@@ -205,6 +210,20 @@ function* runStat(
         }
       }
       break;
+    }
+    case "sleep": {
+      const duration =
+        evalExpr(program, { variables, exprId: stat.value }) * 1000;
+      yield {
+        currentStat: statId,
+        variables: listVariables(variables),
+        specialVariables: specialVariables(variables),
+        duration,
+      };
+      break;
+    }
+    default: {
+      const _: never = stat;
     }
   }
 }

@@ -125,6 +125,18 @@ function Stat({
                 </div>
               );
             }
+            case "sleep": {
+              return (
+                <div>
+                  <div>Sleep</div>
+                  <Expr
+                    program={program}
+                    exprId={stat.value}
+                    setProgram={setProgram}
+                  />
+                </div>
+              );
+            }
             default: {
               const _: never = stat;
             }
@@ -185,6 +197,7 @@ function StatList({
             assign: "Assign",
             if: "If",
             while: "While",
+            sleep: "Sleep",
           };
           return Object.entries(options).map(([type, label]) => (
             <option value={type}>{label}</option>
@@ -239,6 +252,22 @@ function StatList({
                     type: "while",
                     cond: String(program.exprCount),
                     body: [],
+                  },
+                },
+                statCount: program.statCount + 1,
+                exprCount: program.exprCount + 1,
+              }));
+              break;
+            }
+            case "sleep": {
+              setStatIds((statIds) => [...statIds, String(program.statCount)]);
+              setProgram((program) => ({
+                ...program,
+                stats: {
+                  ...program.stats,
+                  [String(program.statCount)]: {
+                    type: "sleep",
+                    value: String(program.exprCount),
                   },
                 },
                 statCount: program.statCount + 1,
@@ -883,7 +912,9 @@ function App() {
                 break;
               }
               setRunningState(res);
-              await new Promise((resolve) => setTimeout(resolve, 500));
+              await new Promise((resolve) =>
+                setTimeout(resolve, res.duration ?? 0)
+              );
             }
             setRunningState(null);
             interruptRef.current = false;
