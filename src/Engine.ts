@@ -334,6 +334,9 @@ export function evalExpr(
     case "not": {
       return evalExpr(program, { exprId: expr.expr, variables }) === 0 ? 1 : 0;
     }
+    default: {
+      const _: never = expr;
+    }
   }
 }
 
