@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import cat from "./assets/cat.jpg";
 import styles from "./App.module.scss";
 import * as Engine from "./Engine.js";
@@ -851,6 +851,7 @@ function App() {
   const [runningState, setRunningState] = useState<Engine.RunningState | null>(
     null
   );
+  const interruptRef = useRef(false);
 
   return (
     <div className="App">
@@ -874,15 +875,31 @@ function App() {
       <div>
         <button
           onClick={async () => {
+            if (interruptRef.current) {
+              return;
+            }
             for (const res of Engine.run(program)) {
+              if (interruptRef.current) {
+                break;
+              }
               setRunningState(res);
               await new Promise((resolve) => setTimeout(resolve, 500));
             }
             setRunningState(null);
+            interruptRef.current = false;
           }}
           disabled={runningState !== null}
         >
           Run
+        </button>
+        <button
+          onClick={async () => {
+            setRunningState(null);
+            interruptRef.current = true;
+          }}
+          disabled={runningState === null}
+        >
+          Stop
         </button>
       </div>
       <table border={1}>

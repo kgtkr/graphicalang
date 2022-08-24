@@ -170,6 +170,13 @@ function* runStat(
         for (const statId of stat.body) {
           yield* runStat(program, { statId, variables });
         }
+        if (stat.body.length === 0) {
+          yield {
+            currentStat: statId,
+            variables: listVariables(variables),
+            specialVariables: specialVariables(variables),
+          };
+        }
       }
       break;
     }
@@ -178,9 +185,23 @@ function* runStat(
         for (const statId of stat.body1) {
           yield* runStat(program, { statId, variables });
         }
+        if (stat.body1.length === 0) {
+          yield {
+            currentStat: statId,
+            variables: listVariables(variables),
+            specialVariables: specialVariables(variables),
+          };
+        }
       } else {
         for (const statId of stat.body2) {
           yield* runStat(program, { statId, variables });
+        }
+        if (stat.body2.length === 0) {
+          yield {
+            currentStat: statId,
+            variables: listVariables(variables),
+            specialVariables: specialVariables(variables),
+          };
         }
       }
       break;
