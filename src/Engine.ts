@@ -214,8 +214,7 @@ function* runStat(
       break;
     }
     case "sleep": {
-      const duration =
-        evalExpr(program, { variables, exprId: stat.value }) * 1000;
+      const duration = evalExpr(program, { variables, exprId: stat.value });
       yield {
         currentStat: statId,
         variables: listVariables(variables),
