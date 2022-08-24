@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useDebugValue, useRef, useState } from "react";
 import cat from "./assets/cat.jpg";
 import styles from "./App.module.scss";
 import * as Engine from "./Engine.js";
@@ -200,7 +200,9 @@ function StatList({
             sleep: "Sleep",
           };
           return Object.entries(options).map(([type, label]) => (
-            <option value={type}>{label}</option>
+            <option value={type} key={type}>
+              {label}
+            </option>
           ));
         })()}
       </select>
@@ -329,7 +331,9 @@ function Expr({
                 not: "not",
               };
               return Object.entries(options).map(([type, label]) => (
-                <option value={type}>{label}</option>
+                <option value={type} key={type}>
+                  {label}
+                </option>
               ));
             })()}
           </select>
@@ -585,7 +589,7 @@ function Expr({
           onClick={() => {
             setProgram((program) => ({
               ...program,
-              exprs: { program: { ...expr, [exprId]: undefined } },
+              exprs: { ...program.exprs, [exprId]: undefined },
             }));
           }}
         >
