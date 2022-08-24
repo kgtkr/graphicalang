@@ -1,4 +1,4 @@
-import { useDebugValue, useRef, useState } from "react";
+import { useDebugValue, useEffect, useRef, useState } from "react";
 import cat from "./assets/cat.jpg";
 import styles from "./App.module.scss";
 import * as Engine from "./Engine.js";
@@ -879,8 +879,19 @@ function Expr({
   );
 }
 
+const key = "kgtkr.net-graphicalang-program-v1";
+
 function App() {
-  const [program, setProgram] = useState<Engine.Program>(Engine.emptyProgram());
+  const [program, setProgram] = useState<Engine.Program>(() => {
+    const json = localStorage.getItem(key);
+    if (json) {
+      return JSON.parse(json);
+    }
+    return Engine.emptyProgram();
+  });
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(program));
+  }, [program]);
   const [runningState, setRunningState] = useState<Engine.RunningState | null>(
     null
   );
