@@ -10,6 +10,7 @@ export interface Program {
 export type ExprId = string;
 export type StatId = string;
 export type StatListId = string;
+export const entryStatListId: StatListId = "entry";
 
 export type Expr =
   | {
@@ -117,7 +118,7 @@ export function emptyProgram(): Program {
     stats: {},
     exprs: {},
     statLists: {
-      entry: [],
+      [entryStatListId]: [],
     },
     statCount: 0,
     exprCount: 0,
@@ -145,7 +146,7 @@ export function* run(program: Program): Generator<RunningState, void, unknown> {
     angle: 0,
   };
 
-  for (const statId of program.statLists["entry"] ?? []) {
+  for (const statId of program.statLists[entryStatListId] ?? []) {
     yield* runStat(program, { statId, variables });
   }
 }

@@ -977,7 +977,7 @@ function App() {
         program={program}
         setProgram={setProgram}
         runningState={runningState}
-        statListId={"entry"}
+        statListId={Engine.entryStatListId}
       ></StatList>
     </div>
   );
