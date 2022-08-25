@@ -1,130 +1,4 @@
-export interface Program {
-  stats: Partial<Record<StatId, Stat>>;
-  exprs: Partial<Record<string, Expr>>;
-  statLists: Partial<Record<string, StatId[]>>;
-  statCount: number;
-  exprCount: number;
-  statListCount: number;
-}
-
-export type ExprId = string;
-export type StatId = string;
-export type StatListId = string;
-export const entryStatListId: StatListId = "entry";
-
-export type Expr =
-  | {
-      type: "const";
-      value: number;
-    }
-  | {
-      type: "var";
-      name: string;
-    }
-  | {
-      type: "add";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "sub";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "mul";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "div";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "mod";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "eq";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "neq";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "lt";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "lte";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "gt";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "gte";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "and";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "or";
-      lhs: ExprId;
-      rhs: ExprId;
-    }
-  | {
-      type: "not";
-      expr: ExprId;
-    };
-
-export type Stat =
-  | {
-      type: "assign";
-      name: string;
-      value: ExprId;
-    }
-  | {
-      type: "while";
-      cond: ExprId;
-      body: StatListId;
-    }
-  | {
-      type: "if";
-      cond: ExprId;
-      body1: StatListId;
-      body2: StatListId;
-    }
-  | {
-      type: "sleep";
-      value: ExprId;
-    };
-
-export function emptyProgram(): Program {
-  return {
-    stats: {},
-    exprs: {},
-    statLists: {
-      [entryStatListId]: [],
-    },
-    statCount: 0,
-    exprCount: 0,
-    statListCount: 0,
-  };
-}
+import * as Program from "./Program.js";
 
 export interface SpecialVariables {
   x: number;
@@ -133,31 +7,33 @@ export interface SpecialVariables {
 }
 
 export interface RunningState {
-  currentStat: StatId;
+  currentStat: Program.StatId;
   variables: [string, number][];
   specialVariables: SpecialVariables;
   duration?: number;
 }
 
-export function* run(program: Program): Generator<RunningState, void, unknown> {
+export function* run(
+  program: Program.Program
+): Generator<RunningState, void, unknown> {
   const variables: Partial<Record<string, number>> = {
     x: 0,
     y: 0,
     angle: 0,
   };
 
-  for (const statId of program.statLists[entryStatListId] ?? []) {
+  for (const statId of program.statLists[Program.entryStatListId] ?? []) {
     yield* runStat(program, { statId, variables });
   }
 }
 
 function* runStat(
-  program: Program,
+  program: Program.Program,
   {
     statId,
     variables,
   }: {
-    statId: StatId;
+    statId: Program.StatId;
     variables: Partial<Record<string, number>>;
   }
 ): Generator<RunningState, void, unknown> {
@@ -221,14 +97,14 @@ function* runStat(
 }
 
 function* runStatList(
-  program: Program,
+  program: Program.Program,
   {
     currentStatId,
     statListId,
     variables,
   }: {
-    currentStatId: StatId;
-    statListId: StatListId;
+    currentStatId: Program.StatId;
+    statListId: Program.StatListId;
     variables: Partial<Record<string, number>>;
   }
 ): Generator<RunningState, void, unknown> {
@@ -246,12 +122,12 @@ function* runStatList(
 }
 
 export function evalExpr(
-  program: Program,
+  program: Program.Program,
   {
     exprId,
     variables,
   }: {
-    exprId: ExprId;
+    exprId: Program.ExprId;
     variables: Partial<Record<string, number>>;
   }
 ): number {

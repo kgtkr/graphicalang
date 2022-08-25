@@ -1,17 +1,19 @@
 import { useDebugValue, useEffect, useRef, useState } from "react";
 import cat from "./assets/cat.jpg";
 import styles from "./App.module.scss";
-import * as Engine from "./Engine.js";
+import * as Evaluator from "./Evaluator.js";
+import * as Program from "./Program.js";
+
 function Stat({
   program,
   runningState,
   statId,
   setProgram,
 }: {
-  program: Engine.Program;
-  runningState: Engine.RunningState | null;
-  statId: Engine.StatId;
-  setProgram: (updater: (value: Engine.Program) => Engine.Program) => void;
+  program: Program.Program;
+  runningState: Evaluator.RunningState | null;
+  statId: Program.StatId;
+  setProgram: (updater: (value: Program.Program) => Program.Program) => void;
 }): JSX.Element {
   const stat = program.stats[statId];
   return (
@@ -127,12 +129,12 @@ function StatList({
   statListId,
   setProgram,
 }: {
-  program: Engine.Program;
-  runningState: Engine.RunningState | null;
-  statListId: Engine.StatListId;
-  setProgram: (updater: (value: Engine.Program) => Engine.Program) => void;
+  program: Program.Program;
+  runningState: Evaluator.RunningState | null;
+  statListId: Program.StatListId;
+  setProgram: (updater: (value: Program.Program) => Program.Program) => void;
 }): JSX.Element {
-  const [type, setType] = useState<Engine.Stat["type"]>("assign");
+  const [type, setType] = useState<Program.Stat["type"]>("assign");
   const statIds = program.statLists[statListId] ?? [];
 
   return (
@@ -177,11 +179,11 @@ function StatList({
       <select
         value={type}
         onChange={(e) => {
-          setType(e.target.value as Engine.Stat["type"]);
+          setType(e.target.value as Program.Stat["type"]);
         }}
       >
         {(() => {
-          const options: Record<Engine.Stat["type"], string> = {
+          const options: Record<Program.Stat["type"], string> = {
             assign: "Assign",
             if: "If",
             while: "While",
@@ -299,12 +301,12 @@ function Expr({
   exprId,
   setProgram,
 }: {
-  program: Engine.Program;
-  exprId: Engine.ExprId;
-  setProgram: (updater: (value: Engine.Program) => Engine.Program) => void;
+  program: Program.Program;
+  exprId: Program.ExprId;
+  setProgram: (updater: (value: Program.Program) => Program.Program) => void;
 }): JSX.Element {
   const expr = program.exprs[exprId];
-  const [type, setType] = useState<Engine.Expr["type"]>("const");
+  const [type, setType] = useState<Program.Expr["type"]>("const");
 
   return (
     <div
@@ -321,11 +323,11 @@ function Expr({
           <select
             value={type}
             onChange={(e) => {
-              setType(e.target.value as Engine.Expr["type"]);
+              setType(e.target.value as Program.Expr["type"]);
             }}
           >
             {(() => {
-              const options: Record<Engine.Expr["type"], string> = {
+              const options: Record<Program.Expr["type"], string> = {
                 const: "constant value",
                 var: "variable",
                 add: "add",
@@ -895,19 +897,18 @@ function Expr({
 const key = "kgtkr.net-graphicalang-program-1661363024522";
 
 function App() {
-  const [program, setProgram] = useState<Engine.Program>(() => {
+  const [program, setProgram] = useState<Program.Program>(() => {
     const json = localStorage.getItem(key);
     if (json) {
       return JSON.parse(json);
     }
-    return Engine.emptyProgram();
+    return Program.emptyProgram();
   });
   useEffect(() => {
     localStorage.setItem(key, JSON.stringify(program));
   }, [program]);
-  const [runningState, setRunningState] = useState<Engine.RunningState | null>(
-    null
-  );
+  const [runningState, setRunningState] =
+    useState<Evaluator.RunningState | null>(null);
   const interruptRef = useRef(false);
 
   return (
@@ -937,7 +938,7 @@ function App() {
             if (interruptRef.current) {
               return;
             }
-            for (const res of Engine.run(program)) {
+            for (const res of Evaluator.run(program)) {
               if (interruptRef.current) {
                 break;
               }
@@ -977,7 +978,7 @@ function App() {
         program={program}
         setProgram={setProgram}
         runningState={runningState}
-        statListId={Engine.entryStatListId}
+        statListId={Program.entryStatListId}
       ></StatList>
     </div>
   );
