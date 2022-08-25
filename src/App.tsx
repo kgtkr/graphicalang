@@ -3,6 +3,8 @@ import cat from "./assets/cat.jpg";
 import styles from "./App.module.scss";
 import * as Evaluator from "./Evaluator.js";
 import * as Program from "./Program.js";
+import { pipe } from "fp-ts/function";
+import * as S from "fp-ts/State";
 
 function Stat({
   program,
@@ -198,96 +200,16 @@ function StatList({
       </select>
       <button
         onClick={() => {
-          switch (type) {
-            case "assign": {
-              setProgram((program) => ({
-                ...program,
-                stats: {
-                  ...program.stats,
-                  [String(program.statCount)]: {
-                    type: "assign",
-                    name: "x",
-                    value: String(program.exprCount),
-                  },
-                },
-                statLists: {
-                  ...program.statLists,
-                  [statListId]: [...statIds, String(program.statCount)],
-                },
-                statCount: program.statCount + 1,
-                exprCount: program.exprCount + 1,
-              }));
-              break;
-            }
-            case "if": {
-              setProgram((program) => ({
-                ...program,
-                stats: {
-                  ...program.stats,
-                  [String(program.statCount)]: {
-                    type: "if",
-                    cond: String(program.exprCount),
-                    body1: String(program.statListCount),
-                    body2: String(program.statListCount + 1),
-                  },
-                },
-                statLists: {
-                  ...program.statLists,
-                  [statListId]: [...statIds, String(program.statCount)],
-                  [String(program.statListCount)]: [],
-                  [String(program.statListCount + 1)]: [],
-                },
-                statCount: program.statCount + 1,
-                exprCount: program.exprCount + 1,
-                statListCount: program.statListCount + 2,
-              }));
-              break;
-            }
-            case "while": {
-              setProgram((program) => ({
-                ...program,
-                stats: {
-                  ...program.stats,
-                  [String(program.statCount)]: {
-                    type: "while",
-                    cond: String(program.exprCount),
-                    body: String(program.statListCount),
-                  },
-                },
-                statLists: {
-                  ...program.statLists,
-                  [statListId]: [...statIds, String(program.statCount)],
-                  [String(program.statListCount)]: [],
-                },
-                statCount: program.statCount + 1,
-                exprCount: program.exprCount + 1,
-                statListCount: program.statListCount + 1,
-              }));
-              break;
-            }
-            case "sleep": {
-              setProgram((program) => ({
-                ...program,
-                stats: {
-                  ...program.stats,
-                  [String(program.statCount)]: {
-                    type: "sleep",
-                    value: String(program.exprCount),
-                  },
-                },
-                statLists: {
-                  ...program.statLists,
-                  [statListId]: [...statIds, String(program.statCount)],
-                },
-                statCount: program.statCount + 1,
-                exprCount: program.exprCount + 1,
-              }));
-              break;
-            }
-            default: {
-              const _: never = type;
-            }
-          }
+          setProgram((program) =>
+            pipe(
+              S.bindTo("stat")(Program.statFromType(type)),
+              S.bind("statId", ({ stat }) => Program.registerStat(stat)),
+              S.bind("_", ({ statId }) =>
+                Program.appendStatList(statListId, statId)
+              ),
+              S.execute(program)
+            )
+          );
         }}
       >
         +
