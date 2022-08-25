@@ -180,6 +180,16 @@ export function registerStatList(
   );
 }
 
+export function setExpr(
+  exprId: ExprId,
+  expr: Expr | undefined
+): S.State<Program, null> {
+  return (program) => [
+    null,
+    { ...program, exprs: { ...program.exprs, [exprId]: expr } },
+  ];
+}
+
 export function statFromType(type: Stat["type"]): S.State<Program, Stat> {
   switch (type) {
     case "assign": {
@@ -254,4 +264,221 @@ export function appendStatList(
       },
     },
   ];
+}
+
+export function removeStatListItem(
+  statListId: StatListId,
+  i: number
+): S.State<Program, null> {
+  return (program) => [
+    null,
+    {
+      ...program,
+      statLists: {
+        ...program.statLists,
+        [statListId]: program.statLists[statListId]?.filter((_, j) => j !== i),
+      },
+    },
+  ];
+}
+
+export function exprFromType(type: Expr["type"]): S.State<Program, Expr> {
+  switch (type) {
+    case "const": {
+      return S.of({
+        type: "const",
+        value: 0,
+      });
+    }
+    case "var": {
+      return S.of({
+        type: "var",
+        name: "x",
+      });
+    }
+    case "add": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "add",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "sub": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "sub",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "mul": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "mul",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "div": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "div",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "mod": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "mod",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "eq": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "eq",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "neq": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "neq",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "lt": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "lt",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "lte": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "lte",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "gt": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "gt",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "gte": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "gte",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "and": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "and",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "or": {
+      return pipe(
+        S.bindTo("lhs")(genExprId),
+        S.bind("rhs", () => genExprId),
+        S.map(
+          ({ lhs, rhs }): Expr => ({
+            type: "or",
+            lhs,
+            rhs,
+          })
+        )
+      );
+    }
+    case "not": {
+      return pipe(
+        S.bindTo("expr")(genExprId),
+        S.map(
+          ({ expr }): Expr => ({
+            type: "not",
+            expr,
+          })
+        )
+      );
+    }
+    default: {
+      const _: never = type;
+      return _;
+    }
+  }
 }

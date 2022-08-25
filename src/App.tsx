@@ -158,13 +158,12 @@ function StatList({
           <div>
             <button
               onClick={() => {
-                setProgram((program) => ({
-                  ...program,
-                  statLists: {
-                    ...program.statLists,
-                    [statListId]: statIds.filter((_, j) => j !== i),
-                  },
-                }));
+                setProgram((program) =>
+                  pipe(
+                    Program.removeStatListItem(statListId, i),
+                    S.execute(program)
+                  )
+                );
               }}
             >
               x
@@ -276,246 +275,13 @@ function Expr({
           </select>
           <button
             onClick={() => {
-              switch (type) {
-                case "const": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "const",
-                        value: 0,
-                      },
-                    },
-                  }));
-                  break;
-                }
-                case "var": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "var",
-                        name: "x",
-                      },
-                    },
-                  }));
-                  break;
-                }
-                case "add": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "add",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "sub": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "sub",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "mul": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "mul",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "div": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "div",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "mod": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "mod",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "eq": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "eq",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "neq": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "neq",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "lt": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "lt",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "lte": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "lte",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "gt": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "gt",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "gte": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "gte",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "and": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "and",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "or": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "or",
-                        lhs: String(program.exprCount),
-                        rhs: String(program.exprCount + 1),
-                      },
-                    },
-                    exprCount: program.exprCount + 2,
-                  }));
-                  break;
-                }
-                case "not": {
-                  setProgram((program) => ({
-                    ...program,
-                    exprs: {
-                      ...program.exprs,
-                      [exprId]: {
-                        type: "not",
-                        expr: String(program.exprCount),
-                      },
-                    },
-                    exprCount: program.exprCount + 1,
-                  }));
-                  break;
-                }
-                default: {
-                  const _: never = type;
-                }
-              }
+              setProgram((program) =>
+                pipe(
+                  S.bindTo("expr")(Program.exprFromType(type)),
+                  S.bind("exprId", ({ expr }) => Program.setExpr(exprId, expr)),
+                  S.execute(program)
+                )
+              );
             }}
           >
             select expr
@@ -524,10 +290,9 @@ function Expr({
       ) : (
         <button
           onClick={() => {
-            setProgram((program) => ({
-              ...program,
-              exprs: { ...program.exprs, [exprId]: undefined },
-            }));
+            setProgram((program) =>
+              pipe(Program.setExpr(exprId, undefined), S.execute(program))
+            );
           }}
         >
           x
