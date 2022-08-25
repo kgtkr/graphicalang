@@ -482,3 +482,81 @@ export function exprFromType(type: Expr["type"]): S.State<Program, Expr> {
     }
   }
 }
+
+export function changeAssignName(
+  statId: StatId,
+  name: string
+): S.State<Program, null> {
+  return (program) => {
+    const stat = program.stats[statId];
+    if (stat?.type === "assign") {
+      return [
+        null,
+        {
+          ...program,
+          stats: {
+            ...program.stats,
+            [statId]: {
+              ...stat,
+              name,
+            },
+          },
+        },
+      ];
+    } else {
+      return [null, program];
+    }
+  };
+}
+
+export function changeConstValue(
+  exprId: ExprId,
+  value: number
+): S.State<Program, null> {
+  return (program) => {
+    const expr = program.exprs[exprId];
+    if (expr?.type === "const") {
+      return [
+        null,
+        {
+          ...program,
+          exprs: {
+            ...program.exprs,
+            [exprId]: {
+              ...expr,
+              value,
+            },
+          },
+        },
+      ];
+    } else {
+      return [null, program];
+    }
+  };
+}
+
+export function changeVarName(
+  exprId: ExprId,
+  name: string
+): S.State<Program, null> {
+  return (program) => {
+    const expr = program.exprs[exprId];
+    if (expr?.type === "var") {
+      return [
+        null,
+        {
+          ...program,
+          exprs: {
+            ...program.exprs,
+            [exprId]: {
+              ...expr,
+              name,
+            },
+          },
+        },
+      ];
+    } else {
+      return [null, program];
+    }
+  };
+}

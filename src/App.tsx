@@ -41,13 +41,12 @@ function Stat({
                     type="text"
                     value={stat.name}
                     onChange={(e) =>
-                      setProgram((program) => ({
-                        ...program,
-                        stats: {
-                          ...program.stats,
-                          [statId]: { ...stat, name: e.target.value },
-                        },
-                      }))
+                      setProgram((program) =>
+                        pipe(
+                          Program.changeAssignName(statId, e.target.value),
+                          S.execute(program)
+                        )
+                      )
                     }
                   />{" "}
                   for{" "}
@@ -310,13 +309,15 @@ function Expr({
                     type="text"
                     value={expr.value}
                     onChange={(e) =>
-                      setProgram((program) => ({
-                        ...program,
-                        exprs: {
-                          ...program.exprs,
-                          [exprId]: { ...expr, value: Number(e.target.value) },
-                        },
-                      }))
+                      setProgram((program) =>
+                        pipe(
+                          Program.changeConstValue(
+                            exprId,
+                            Number(e.target.value)
+                          ),
+                          S.execute(program)
+                        )
+                      )
                     }
                   />
                 </>
@@ -329,13 +330,12 @@ function Expr({
                     type="text"
                     value={expr.name}
                     onChange={(e) =>
-                      setProgram((program) => ({
-                        ...program,
-                        exprs: {
-                          ...program.exprs,
-                          [exprId]: { ...expr, name: e.target.value },
-                        },
-                      }))
+                      setProgram((program) =>
+                        pipe(
+                          Program.changeVarName(exprId, e.target.value),
+                          S.execute(program)
+                        )
+                      )
                     }
                   />
                 </>
